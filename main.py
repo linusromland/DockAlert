@@ -1,6 +1,3 @@
-"""
-Monitor Docker events and send notifications to Telegram on container status changes.
-"""
 import os
 import docker
 import requests
@@ -71,7 +68,8 @@ def get_running_containers_info():
             uptime = datetime.now(timezone.utc) - created_timestamp
             uptime_str = str(uptime).split('.')[0]  # Remove microseconds
 
-            info_message += f"- {container.name}: Uptime {uptime_str}\n"
+            image_name = container.attrs['Config']['Image']  # Get Docker image name
+            info_message += f"- {container.name} ({image_name}): Uptime {uptime_str}\n"
 
         return info_message
     except docker.errors.APIError as api_error:
@@ -88,7 +86,11 @@ def monitor_docker_events():
                 if event['Type'] == 'container':
                     status = event.get('status', 'unknown')
                     container_name = event['Actor']['Attributes'].get('name', 'unknown')
-                    message = f"Container {container_name} status changed: {status}"
+                    container_id = event['id']
+                    container = client.containers.get(container_id)
+                    image_name = container.attrs['Config']['Image']
+
+                    message = f"Container {container_name} ({image_name}) status changed: {status}"
                     logging.info("Container %s status changed: %s", container_name, status)
                     send_telegram_message(message)
         except docker.errors.APIError as docker_api_error:
