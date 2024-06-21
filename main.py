@@ -49,19 +49,21 @@ def send_telegram_message(message):
     except requests.exceptions.RequestException as request_error:
         logging.error("Failed to send message: %s", request_error)
 
-def get_running_containers_info():
+def get_all_containers_info():
     """
-    Retrieve information about all running Docker containers.
+    Retrieve information about all Docker containers (running and stopped).
 
     :return: A formatted string with container information.
     """
     try:
-        containers = client.containers.list()
+        containers = client.containers.list(all=True)
         if not containers:
-            return "No containers are currently running."
+            return "No containers found."
 
-        info_message = "Currently running containers:\n"
+        info_message = "All containers:\n"
         for container in containers:
+            status = container.status
+            container_name = container.name
             created_time = container.attrs['Created']  # Get creation time as string
             created_timestamp = datetime.strptime(created_time[:26], "%Y-%m-%dT%H:%M:%S.%f")  # Parse datetime
             created_timestamp = created_timestamp.replace(tzinfo=timezone.utc)  # Ensure UTC timezone
@@ -69,7 +71,7 @@ def get_running_containers_info():
             uptime_str = str(uptime).split('.')[0]  # Remove microseconds
 
             image_name = container.attrs['Config']['Image']  # Get Docker image name
-            info_message += f"- {container.name} ({image_name}): Uptime {uptime_str}\n"
+            info_message += f"- {container_name} ({image_name}): Status {status}, Uptime {uptime_str}\n"
 
         return info_message
     except docker.errors.APIError as api_error:
@@ -108,7 +110,7 @@ def monitor_docker_events():
 
 if __name__ == "__main__":
     INIT_MESSAGE = "DockAlert monitoring started.\n\n"
-    INIT_MESSAGE += get_running_containers_info()
+    INIT_MESSAGE += get_all_containers_info()
     logging.info(INIT_MESSAGE)
     send_telegram_message(INIT_MESSAGE)
     monitor_docker_events()
