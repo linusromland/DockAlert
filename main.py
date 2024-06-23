@@ -78,6 +78,83 @@ def get_all_containers_info():
         logging.error("Failed to fetch Docker containers: %s", api_error)
         return "Failed to fetch Docker containers information."
 
+def get_running_containers_info():
+    """
+    Retrieve information about all running Docker containers.
+
+    :return: A formatted string with running container information.
+    """
+    try:
+        containers = client.containers.list()
+        if not containers:
+            return "No running containers found."
+
+        info_message = "Running containers:\n"
+        for container in containers:
+            status = container.status
+            container_name = container.name
+            created_time = container.attrs['Created']  # Get creation time as string
+            created_timestamp = datetime.strptime(created_time[:26], "%Y-%m-%dT%H:%M:%S.%f")  # Parse datetime
+            created_timestamp = created_timestamp.replace(tzinfo=timezone.utc)  # Ensure UTC timezone
+            uptime = datetime.now(timezone.utc) - created_timestamp
+            uptime_str = str(uptime).split('.')[0]  # Remove microseconds
+
+            image_name = container.attrs['Config']['Image']  # Get Docker image name
+            info_message += f"- {container_name} ({image_name}): Status {status}, Uptime {uptime_str}\n"
+
+        return info_message
+    except docker.errors.APIError as api_error:
+        logging.error("Failed to fetch running Docker containers: %s", api_error)
+        return "Failed to fetch running Docker containers information."
+
+def handle_telegram_updates():
+    """
+    Continuously poll for new messages from Telegram and handle commands.
+    """
+    last_update_id = None
+    while True:
+        try:
+            params = {'timeout': 100, 'allowed_updates': ['message']}
+            if last_update_id:
+                params['offset'] = last_update_id + 1
+
+            response = requests.get(f"https://api.telegram.org/bot{BOT_TOKEN}/getUpdates", params=params)
+            response.raise_for_status()
+            updates = response.json().get('result', [])
+
+            for update in updates:
+                message = update.get('message')
+                if not message:
+                    continue
+
+                chat_id = message['chat']['id']
+                text = message.get('text', '').strip().lower()
+
+                if chat_id != int(CHAT_ID):
+                    continue
+
+                if text == '/list':
+                    running_containers_info = get_running_containers_info()
+                    send_telegram_message(running_containers_info)
+                elif text == '/all':
+                    all_containers_info = get_all_containers_info()
+                    send_telegram_message(all_containers_info)
+                elif text == '/help':
+                    help_message = "Available commands:\n"
+                    help_message += "/list - List running containers\n"
+                    help_message += "/all - List all containers\n"
+                    send_telegram_message(help_message)
+
+                last_update_id = update['update_id']
+
+            sleep(1)
+        except requests.exceptions.RequestException as request_error:
+            logging.error("Failed to fetch Telegram updates: %s", request_error)
+            sleep(RETRY_INTERVAL)
+        except Exception as general_error:
+            logging.error("Unexpected error: %s", general_error)
+            sleep(RETRY_INTERVAL)
+
 def monitor_docker_events():
     """
     Monitor Docker events and send notifications to Telegram on container status changes.
@@ -113,4 +190,11 @@ if __name__ == "__main__":
     INIT_MESSAGE += get_all_containers_info()
     logging.info(INIT_MESSAGE)
     send_telegram_message(INIT_MESSAGE)
-    monitor_docker_events()
+
+    from threading import Thread
+    # Start Docker event monitoring in a separate thread
+    docker_thread = Thread(target=monitor_docker_events)
+    docker_thread.start()
+
+    # Handle Telegram updates in the main thread
+    handle_telegram_updates()
