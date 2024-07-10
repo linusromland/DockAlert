@@ -9,9 +9,13 @@ class DockerMonitor():
         self.notification_manager = notification_manager
         try:
             self.client = docker.from_env()
+            logging.info("Connected to Docker daemon.")
         except docker.errors.DockerException as e:
-            logging.error("Failed to initialize Docker client: %s", e)
-            exit(1)
+            if "Connection refused" in str(e):
+                logging.info("Docker daemon is not running. Skipping Docker monitor.")
+            else:
+                logging.error("Failed to connect to Docker daemon: %s", e)
+                exit(1)
 
     def run(self):
         while True:
