@@ -1,10 +1,18 @@
 from .docker_monitor import DockerMonitor
+from .linux_host_monitor import LinuxHostMonitor
 
 class MonitorManager:
     def __init__(self, services, notification_manager):
         self.monitors = []
         if 'docker' in services:
             self.monitors.append(DockerMonitor(notification_manager))
+
+        if 'linux_host' in services:
+            self.monitors.append(LinuxHostMonitor(
+                ["81.227.71.152"],
+                "ubuntu",
+                "/Users/linusromland/.ssh/id_ed25519",
+                notification_manager))
 
     def get_initial_message(self):
         message = ""

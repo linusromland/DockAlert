@@ -1,6 +1,5 @@
 import docker
 import logging
-from datetime import datetime, timezone
 from time import sleep
 from src.config import RETRY_INTERVAL
 
@@ -46,7 +45,7 @@ class DockerMonitor():
 
                         message = f"Container {container_name} ({image_name}) status changed: {status}"
                         logging.info(message)
-                        self.notification_manager.send_message(message)
+                        self.notification_manager.send_message(message, self.name)
             except docker.errors.APIError as e:
                 logging.error("Docker API error: %s", e)
                 logging.info("Retrying in %d seconds...", RETRY_INTERVAL)
