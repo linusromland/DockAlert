@@ -5,6 +5,8 @@ from time import sleep
 from src.config import RETRY_INTERVAL
 
 class DockerMonitor():
+    name = "Docker"
+
     def __init__(self, notification_manager):
         self.notification_manager = notification_manager
         try:
@@ -16,6 +18,20 @@ class DockerMonitor():
             else:
                 logging.error("Failed to connect to Docker daemon: %s", e)
                 exit(1)
+
+    def running(self):
+        return self.client.ping()
+
+    def get_initial_message(self):
+        containers = self.client.containers.list(all=True)
+        message = "Initial container status:\n"
+        for container in containers:
+            container_name = container.name
+            container_id = container.id
+            status = container.status
+            image_name = container.attrs['Config']['Image']
+            message += f"Container {container_name} ({image_name}): {status}\n"
+        return message
 
     def run(self):
         while True:

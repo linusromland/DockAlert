@@ -33,14 +33,15 @@ class NotificationManager:
             self.external_ip = None
 
 
-    def send_initial_message(self):
+    def send_initial_message(self, monitor_initial_messages):
         init_message = "AlertBot monitoring started."
+        init_message += "\n" + monitor_initial_messages
         self.send_message(init_message)
 
     def send_message(self, message):
         self.getIpAdresses()
 
-        formatted_message = f"Hostname: {self.hostname}"
+        formatted_message = f"Hostname:  {self.hostname}"
         formatted_message += f"\nInternal IP: {self.internal_ip}"
         formatted_message += f"\nExternal IP: {self.external_ip}"
         formatted_message += f"\n\n{message}"

@@ -10,7 +10,7 @@ def main():
     notification_manager = NotificationManager(NOTIFICATION_METHODS)
     monitor_manager = MonitorManager(MONITOR_SERVICES, notification_manager)
 
-    notification_manager.send_initial_message()
+    notification_manager.send_initial_message(monitor_manager.get_initial_message())
 
     for monitor in monitor_manager.monitors:
         thread = Thread(target=monitor.run)
