@@ -1,6 +1,6 @@
 import requests
 import logging
-from config import BOT_TOKEN, CHAT_ID
+from src.config import BOT_TOKEN, CHAT_ID
 
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 

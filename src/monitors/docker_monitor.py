@@ -2,7 +2,7 @@ import docker
 import logging
 from datetime import datetime, timezone
 from time import sleep
-from config import RETRY_INTERVAL
+from src.config import RETRY_INTERVAL
 
 class DockerMonitor():
     def __init__(self, notification_manager):
