@@ -35,8 +35,17 @@ Environment Variables:
 Create a .env file in the project root directory and provide the following variables:
 
 ```
-BOT_TOKEN=<your_telegram_bot_token>
-CHAT_ID=<your_telegram_chat_id>
+NOTIFICATION_METHODS=<your_notification_services> # Comma separated list of notification services. Supported are: "telegram"
+MONITOR_SERVICES=<your_monitor_services> # Comma separated list of services to monitor. Supported are: "docker","linux_host"
+
+# Telegram Bot Configuration
+TELEGRAM_BOT_TOKEN=<your_telegram_bot_token>
+TELEGRAM_CHAT_ID=<your_telegram_chat_id>
+
+# Linux host configuration
+HOSTS=<your_hosts> # Comma separated list of hosts to monitor. HOST@IP
+SSH_KEY_FILEPATH=<your_ssh_key_filepath> # Path to the SSH private key file
+
 RETRY_INTERVAL=10  # Optional: Retry interval in seconds (default is 10)
 ```
 
@@ -45,7 +54,7 @@ RETRY_INTERVAL=10  # Optional: Retry interval in seconds (default is 10)
 Run the Python script to start monitoring Docker events:
 
 ```bash
-python dockalert.py
+python src/main.py
 ```
 
 ## Usage
