@@ -9,7 +9,7 @@ class LinuxHostMonitor():
     name = "LinuxHost"
 
     def __init__(self, notification_manager):
-        hosts = os.getenv('HOSTS').split(',')
+        hosts = os.getenv('HOSTS').split(',') if os.getenv('HOSTS') else []
         if not hosts:
             raise ValueError("Atleast one host must be provided to monitor.")
 

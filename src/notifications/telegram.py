@@ -11,7 +11,7 @@ class TelegramNotification():
         CHAT_ID: str | None = os.getenv('TELEGRAM_CHAT_ID')
 
         if not BOT_TOKEN or not CHAT_ID:
-            raise ValueError("BOT_TOKEN and CHAT_ID environment variables must be set.")
+            raise ValueError("TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID environment variables must be set.")
 
         self.TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
         self.CHAT_ID = CHAT_ID
