@@ -10,7 +10,7 @@ class DockerMonitor():
         self.notification_manager = notification_manager
         try:
             self.client = docker.from_env()
-            logging.info("Connected to Docker daemon.")
+            logging.info("Connected to Docker daemon. Monitoring containers...")
         except docker.errors.DockerException as e:
             if "Connection refused" in str(e):
                 logging.info("Docker daemon is not running. Skipping Docker monitor.")
