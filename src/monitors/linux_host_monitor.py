@@ -49,7 +49,8 @@ class LinuxHostMonitor():
 
     def check_host_status(self, host):
         try:
-            client = self.get_ssh_client(host)
+            username, host = host.split('@')
+            client = self.get_ssh_client(username, host)
             if client is None:
                 logging.info("Failed to connect to host %s", host)
                 return "offline"

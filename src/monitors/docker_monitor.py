@@ -30,6 +30,9 @@ class DockerMonitor():
             status = container.status
             image_name = container.attrs['Config']['Image']
             message += f"Container {container_name} ({image_name}): {status}\n"
+
+        if not containers:
+            message += "No containers found."
         return message
 
     def run(self):
