@@ -10,7 +10,7 @@ class DockerMonitor():
         self.notification_manager = notification_manager
         try:
             self.client = docker.from_env()
-            logging.info("Connected to Docker daemon.")
+            logging.info("Connected to Docker daemon. Monitoring containers...")
         except docker.errors.DockerException as e:
             if "Connection refused" in str(e):
                 logging.info("Docker daemon is not running. Skipping Docker monitor.")
@@ -30,6 +30,9 @@ class DockerMonitor():
             status = container.status
             image_name = container.attrs['Config']['Image']
             message += f"Container {container_name} ({image_name}): {status}\n"
+
+        if not containers:
+            message += "No containers found."
         return message
 
     def run(self):
