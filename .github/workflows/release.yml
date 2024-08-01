@@ -7,7 +7,6 @@ on:
 
 jobs:
   build-and-publish:
-    if: github.event.release.draft == true
     runs-on: ubuntu-latest
 
     steps:
@@ -38,15 +37,3 @@ jobs:
         if [ "${{ github.event.release.prerelease }}" == "false" ]; then
           docker push ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:latest
         fi
-
-    - name: Publish GitHub Release
-      if: github.event.release.draft == true
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.event.release.tag_name }}
-        release_name: ${{ github.event.release.name }}
-        body: ${{ github.event.release.body }}
-        draft: false
-        prerelease: ${{ github.event.release.prerelease }}
