@@ -29,6 +29,17 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
+### Run using docker with the following command:
+```bash
+docker run -d \
+  --privileged \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -e ENV_VAR1=value1 \
+  ghcr.io/linusromland/dockalert:latest
+```
+
+Change the ENV_VAR1 to all the vars needed, read more about this below.
+
 ### Configuration
 Environment Variables:
 
