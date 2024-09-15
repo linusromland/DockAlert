@@ -53,10 +53,14 @@ MONITOR_SERVICES=<your_monitor_services> # Comma separated list of services to m
 TELEGRAM_BOT_TOKEN=<your_telegram_bot_token>
 TELEGRAM_CHAT_ID=<your_telegram_chat_id>
 
-# Linux host configuration
+# Linux host Configuration
 HOSTS=<your_hosts> # Comma separated list of hosts to monitor. HOST@IP
 SSH_KEY_FILEPATH=<your_ssh_key_filepath> # Path to the SSH private key file
 
+# Docker Configuration
+IGNORE_IMAGES=<ignored_images> # Comma separated list of ignored images
+
+# General Configuration
 RETRY_INTERVAL=10  # Optional: Retry interval in seconds (default is 10)
 ```
 
