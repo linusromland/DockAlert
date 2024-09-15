@@ -1,3 +1,4 @@
+import os
 import docker
 import logging
 from time import sleep
@@ -8,6 +9,10 @@ class DockerMonitor():
 
     def __init__(self, notification_manager):
         self.notification_manager = notification_manager
+
+        ignore_images = os.getenv('IGNORE_IMAGES')
+        self.ignored_images = ignore_images.split(',') if ignore_images else []
+
         try:
             self.client = docker.from_env()
             logging.info("Connected to Docker daemon. Monitoring containers...")
@@ -26,7 +31,6 @@ class DockerMonitor():
         message = "Initial container status:\n"
         for container in containers:
             container_name = container.name
-            container_id = container.id
             status = container.status
             image_name = container.attrs['Config']['Image']
             message += f"Container {container_name} ({image_name}): {status}\n"
@@ -40,6 +44,8 @@ class DockerMonitor():
             try:
                 for event in self.client.events(decode=True):
                     if event['Type'] == 'container':
+                        if event['Actor']['Attributes']['image'] in self.ignored_images:
+                            continue
                         status = event.get('status', 'unknown')
                         container_name = event['Actor']['Attributes'].get('name', 'unknown')
                         container_id = event['id']
